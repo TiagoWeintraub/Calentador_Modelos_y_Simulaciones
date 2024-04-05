@@ -62,7 +62,8 @@ class Graficar:
         plt.xlabel('Tiempo (s)')
         plt.ylabel('Temperatura (°C)')
         plt.title('Temperatura del Líquido')
-        plt.yticks(range(0, self.temperatura_final + 1, 5))    
+        plt.yticks(range(0, self.temperatura_final + 1, 5)) 
+        plt.xticks(range(0, 210 + 1, 15))    
         plt.legend()    
         plt.show()
 
