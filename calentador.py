@@ -32,7 +32,7 @@ class Calentador(Liquidos):
         self.aumento_por_segundo = P / (self.capacidad_recipiente * self.capacidad_calorifica)
         print(f"La potencia es de {P} W, la corriente es de {I} A, la resistencia es de {R} Ω y el aumento de temperatura por segundo es de {self.aumento_por_segundo} °C/s") 
 
-    def calentar(self):
+    def calentar(self, grafica_general=None):
         temperatura_actual = self.temperatura_inicial
         for segundo in range(0,self.tiempo+1):
             segundo_actual = segundo
@@ -40,32 +40,43 @@ class Calentador(Liquidos):
             self.grafica_eje_y.append(temperatura_actual)
             print(f"Segundo {segundo_actual}: {temperatura_actual} °C")
             temperatura_actual += self.aumento_por_segundo
-        return f"La temperatura final es de {temperatura_actual} °C en {segundo_actual} segundos", Graficar(self.grafica_eje_x, self.grafica_eje_y, self.nombre)
+        if grafica_general:
+            grafica_general.almacenar_datos(self.grafica_eje_x, self.grafica_eje_y, self.nombre)
+        return f"La temperatura del {self.nombre} final es de {temperatura_actual} °C en {segundo_actual} segundos"
 
-class Graficar():
+class Graficar:
     def __init__(self):
         self.graficas_eje_x = []
         self.graficas_eje_y = []
-        self.nombre = []
+        self.nombres = []
         self.temperatura_final = 100
     
     def almacenar_datos(self, eje_x, eje_y, nombre):
         self.graficas_eje_x.append(eje_x)
         self.graficas_eje_y.append(eje_y)
-        self.nombre.append(nombre)
+        self.nombres.append(nombre)
     
     def graficar(self):
-        plt.plot(self.grafica_eje_x, self.grafica_eje_y)
+        for x, y, nombre in zip(self.graficas_eje_x, self.graficas_eje_y, self.nombres):
+            plt.plot(x, y, label=nombre)
         plt.xlabel('Tiempo (s)')
         plt.ylabel('Temperatura (°C)')
-        plt.title('Temperatura del líquido')
-        plt.yticks(range(0, self.temperatura_final + 1, 5))
+        plt.title('Temperatura del Líquido')
+        plt.yticks(range(0, self.temperatura_final + 1, 5))    
+        plt.legend()    
         plt.show()
 
 
 if __name__ == "__main__":
-#temperatura_inicial, temperatura_final , capacidad_calorifica, temperatura_entorno
-    calentador = Calentador("Agua", 15, 4.186, 15)
-    calentador.especificaciones()
-    calentador.calentar()
+#temperatura_inicial, capacidad_calorifica, temperatura_entorno
+    grafica_general = Graficar()
     
+    calentador1 = Calentador("Agua", 15, 4.186, 15)
+    calentador1.especificaciones()
+    calentador1.calentar(grafica_general)
+    
+    calentador2 = Calentador("Agua2", 20, 4.186, 25)
+    calentador2.especificaciones()
+    calentador2.calentar(grafica_general)
+
+    grafica_general.graficar()
