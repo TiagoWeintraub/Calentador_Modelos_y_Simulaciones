@@ -1,23 +1,20 @@
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt        
 
-class Liquidos:
-    def __init__(self, nombre, temperatura_inicial, capacidad_calorifica):
+class Calentador:
+    def __init__(self, nombre, temperatura_inicial , temperatura_final,  capacidad_calorifica, temperatura_entorno, segundos):
         self.temperatura_inicial = temperatura_inicial
         self.capacidad_calorifica = capacidad_calorifica
         self.nombre = nombre
-
-class Calentador(Liquidos):
-    def __init__(self, nombre, temperatura_inicial , capacidad_calorifica, temperatura_entorno):
-        super().__init__(nombre, temperatura_inicial, capacidad_calorifica)
-        self.tiempo = 210
+        self.tiempo = segundos
         self.tension = 220
         self.capacidad_recipiente = 1.8
-        self.temperatura_final = 100
+        self.conductividad_fibra_de_vidrio = 0.04
+        self.temperatura_final = temperatura_final
         self.temperatura_entorno = temperatura_entorno
         self.aumento_por_segundo = 0
         self.grafica_eje_x = []
         self.grafica_eje_y = []
-
+        
 
     def especificaciones(self):
         # Energía calorífica
@@ -41,7 +38,7 @@ class Calentador(Liquidos):
             print(f"Segundo {segundo_actual}: {temperatura_actual} °C")
             temperatura_actual += self.aumento_por_segundo
         if grafica_general:
-            grafica_general.almacenar_datos(self.grafica_eje_x, self.grafica_eje_y, self.nombre)
+            grafica_general.almacenar_datos(self.grafica_eje_x, self.grafica_eje_y, self.nombre, self.temperatura_final, self.tiempo)
         return f"La temperatura del {self.nombre} final es de {temperatura_actual} °C en {segundo_actual} segundos"
 
 class Graficar:
@@ -49,12 +46,15 @@ class Graficar:
         self.graficas_eje_x = []
         self.graficas_eje_y = []
         self.nombres = []
-        self.temperatura_final = 100
+        self.temperatura_final = []
+        self.tiempo = []
     
-    def almacenar_datos(self, eje_x, eje_y, nombre):
+    def almacenar_datos(self, eje_x, eje_y, nombre, temperatura_final, segundos):
         self.graficas_eje_x.append(eje_x)
         self.graficas_eje_y.append(eje_y)
         self.nombres.append(nombre)
+        self.temperatura_final.append(temperatura_final + 1)
+        self.tiempo.append(segundos + 1)
     
     def graficar(self):
         for x, y, nombre in zip(self.graficas_eje_x, self.graficas_eje_y, self.nombres):
@@ -62,21 +62,23 @@ class Graficar:
         plt.xlabel('Tiempo (s)')
         plt.ylabel('Temperatura (°C)')
         plt.title('Temperatura del Líquido')
-        plt.yticks(range(0, self.temperatura_final + 1, 5)) 
-        plt.xticks(range(0, 210 + 1, 15))    
-        plt.legend()    
+        max_temperatura_final = max(self.temperatura_final)
+        plt.yticks(range(0, max_temperatura_final + 1, 5)) 
+        max_tiempo = max(self.tiempo)
+        plt.xticks(range(0, max_tiempo + 1, 15))
+        plt.legend()
         plt.show()
 
 
 if __name__ == "__main__":
-#temperatura_inicial, capacidad_calorifica, temperatura_entorno
+# nombre, temperatura_inicial, temperatura_que_quiere_llegar, capacidad_calorifica, temperatura_entorno, segundos
     grafica_general = Graficar()
     
-    calentador1 = Calentador("Agua", 15, 4.186, 15)
+    calentador1 = Calentador("Agua", 15, 100, 4.186, 15, 245)
     calentador1.especificaciones()
     calentador1.calentar(grafica_general)
     
-    calentador2 = Calentador("Agua2", 20, 4.186, 25)
+    calentador2 = Calentador("Agua", 20, 85, 4.186, 25, 210)
     calentador2.especificaciones()
     calentador2.calentar(grafica_general)
 
