@@ -114,6 +114,10 @@ if __name__ == "__main__":
     calentador3 = Calentador(10, 100, 25)
     calentador3.especificaciones()
     calentador3.calentar(grafica_general)
+    
+    calentador4 = Calentador(5, 100, 0)
+    calentador4.especificaciones()
+    calentador4.calentar(grafica_general)
 
     def main():
         decision = input('1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
