@@ -1,29 +1,35 @@
 from matplotlib import pyplot as plt  
 import math      
+import numpy as np
+
 
 class Calentador:
-    def __init__(self, temperatura_inicial_agua , temperatura_final, temperatura_exterior, resistencia = None):
+    def __init__(self, temperatura_inicial_agua , temperatura_final, temperatura_exterior,resistencia = None, tension = None):
         self.temperatura_interior = temperatura_inicial_agua
         self.temperatura_final = temperatura_final
         self.temperatura_exterior = temperatura_exterior
         self.resistencia = resistencia
         self.tiempo = 210
-        self.tension = 220
+        self.tension = tension
         self.capacidad_recipiente = 1800
         self.conductividad_fibra_de_vidrio = 0.04
+        self.capacidad_calorifica = 4186 # J/kg°C
+        self.altura = 30 #cm 
+        self.radio = 7 #cm
+        self.espesor = 0.001 # 1 mm de espesor expresado en m
+        self.k = 0.04  # Conductividad térmica de la fibra de vidrio
 
     def especificaciones(self):
-        capacidad_calorifica = 4.186
         if self.resistencia:
             p = self.tension**2/self.resistencia  
             print(f'LA resistencia es R: {self.resistencia}, la potencia {p}, la I {p/self.tension}')
         else:
-            q = self.capacidad_recipiente * capacidad_calorifica * (self.temperatura_final - self.temperatura_interior)# Energía calorífica
+            q = self.capacidad_recipiente * (self.capacidad_calorifica/1000) * (self.temperatura_final - self.temperatura_interior)# Energía calorífica
             p = q / self.tiempo #Potencia
             i = p / self.tension #Corriente 
             r = self.tension / i #Resistencia
             print(f'LA resistencia es R: {r}, Q: {q}, la potencia {p}, la I {i}')
-        self.aumento_por_segundo = p / (self.capacidad_recipiente * capacidad_calorifica) #Aumento de temperatura por segundo
+        self.aumento_por_segundo = p / (self.capacidad_recipiente * (self.capacidad_calorifica/1000)) #Aumento de temperatura por segundo
 
     def calentar(self, grafica_general=None):
         self.especificaciones()
@@ -32,20 +38,14 @@ class Calentador:
         grafica_eje_y_con_perdida = []
         temperatura_interior = self.temperatura_interior
         temperatura_actual = self.temperatura_interior
-        capacidad_calorifica = 4186 # J/kg°C
-        altura = 30 #cm 
-        radio = 7 #cm
-        espesor = 0.001 # 1 mm de espesor expresado en m
-        k = 0.04  # Conductividad térmica de la fibra de vidrio
-        superficie = (2 * math.pi * (radio**2) + 2 * math.pi * radio* altura)/10000 # m² - Se divide para pasarlo a m²
-        print(f"La superficie del recipiente es de {superficie} m²")
-        densidad_agua = 994 # kg/m³
+        
+        superficie = (2 * math.pi * (self.radio**2) + 2 * math.pi * self.radio* self.altura)/10000 # m² - Se divide para pasarlo a m²
 
         for segundo in range(self.tiempo):
             segundo_actual = segundo
 
-            calor_perdido = k*superficie*(temperatura_actual - self.temperatura_exterior)/espesor #  W/K Calor perdido
-            variacion_temperatura = self.aumento_por_segundo - (calor_perdido/capacidad_calorifica)
+            calor_perdido = self.k*superficie*(temperatura_actual - self.temperatura_exterior)/self.espesor #  W/K Calor perdido
+            variacion_temperatura = self.aumento_por_segundo - (calor_perdido/self.capacidad_calorifica)
             # print(f"Segundo {segundo_actual}: {temperatura_actual} °C + suma rara {densidad_agua/capacidad_calorifica} -   restarara  {calor_perdido/capacidad_calorifica} W")
             grafica_eje_y_con_perdida.append(temperatura_actual)
             grafica_eje_x.append(segundo_actual)
@@ -59,7 +59,6 @@ class Calentador:
             grafica_general.almacenar_datos(grafica_eje_x, grafica_eje_y_sin_perdida, grafica_eje_y_con_perdida,
             self.temperatura_final, self.tiempo)
         return f"La temperatura final del agua es de {temperatura_actual} °C en {segundo_actual} segundos"
-
 
 class Graficador:
     def __init__(self):
@@ -101,26 +100,27 @@ class Graficador:
         plt.show()
 
 
-if __name__ == "__main__":
-#Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_exterior
+def main():
+    #Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_ambiente, resistencia y tension
     grafica_general = Graficador()
     
-    #calentador1 = Calentador(15, 100, 15)
-    #calentador1.calentar(grafica_general)
+    resistencias_dist_unif = np.random.uniform(13,25,5)     # 5.A) CON 5 VALORES DISTINTOS DE RESISTENCIAS - DIST UNIFORME
+    temp_inicial_agua_dist_norm = np.random.normal(10, 5, 5)    # 5.B) CON 5 VALORES DISTINTOS DE TEMP. INICIAL DEL AGUA - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
+    temp_ambiente = np.random.uniform(0, 30, 5)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
+    tension_dist_norm = np.random.normal(220, 40, 5)     # 5.D) CON 5 VALORES DISTINTOS DE TENSION DE ALIMENTACION - DIST NORMAL CON MEDIA 12 Y DESV. ESTANDAR 4 - LUEGO DIST NORMAL CON MEDIA 220 Y DESV. ESTANDAR 40.
     
-    # calentador2 = Calentador(20, 100, 25, 40)
-    # calentador2.calentar(grafica_general)
-    
-    calentador3 = Calentador(10, 100, 25,15)
-    calentador3.calentar(grafica_general)
-    
-    # calentador4 = Calentador(5, 100, 0, 35)
-    # calentador4.calentar(grafica_general)
+    for i in range(5):
+        calentador = Calentador(temp_inicial_agua_dist_norm[i], 100, temp_ambiente[i], resistencias_dist_unif[i], tension_dist_norm[i])
+        calentador.calentar(grafica_general)
+        print("Resistencia: ", resistencias_dist_unif[i], "Temperatura inicial: ", temp_inicial_agua_dist_norm[i], "Temperatura ambiente: ", temp_ambiente[i], "Tension: ", tension_dist_norm[i])
 
-    def main():
-        decision = input('1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
-        if decision == '1':
-            grafica_general.grafico_sin_perdida()
-        elif decision == '2':
-            grafica_general.grafico_con_perdida()
+    decision = input('\nPresione enter para salir\n\n1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
+    if decision == '1':
+        grafica_general.grafico_sin_perdida()
+    elif decision == '2':
+        grafica_general.grafico_con_perdida()
+    else: 
+        pass
+
+if __name__ == "__main__":
     main()
