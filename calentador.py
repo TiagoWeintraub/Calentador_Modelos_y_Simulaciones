@@ -12,13 +12,12 @@ class Calentador:
         self.temperatura_exterior = temperatura_exterior
 
     def especificaciones(self):
-        capacidad_calorifica = 4.186
+        capacidad_calorifica = 4186
         Q = self.capacidad_recipiente * capacidad_calorifica * (self.temperatura_final - self.temperatura_interior)# Energía calorífica
         P = Q / self.tiempo #Potencia
         I = P / self.tension #Corriente 
         R = self.tension / I #Resistencia
         self.aumento_por_segundo = P / (self.capacidad_recipiente * capacidad_calorifica) #Aumento de temperatura por segundo
-
 
     def calentar(self, grafica_general=None):
         self.especificaciones()
@@ -31,7 +30,7 @@ class Calentador:
         capacidad_calorifica = 4186 # J/kg°C
         altura = 30 #cm 
         radio = 7 #cm
-        espesor = 0.001 # 2 mm de espesor expresado en m
+        espesor = 0.001 # 1 mm de espesor expresado en m
         k = 0.04  # Conductividad térmica de la fibra de vidrio
         superficie = (2 * math.pi * (radio**2) + 2 * math.pi * radio* altura)/10000 # m² - Se divide para pasarlo a m²
         print(f"La superficie del recipiente es de {superficie} m²")
@@ -42,12 +41,10 @@ class Calentador:
 
             calor_perdido = k*superficie*(temperatura_actual - temperatura_exterior)/espesor #  W/K Calor perdido
             variacion_temperatura = self.aumento_por_segundo - (calor_perdido/capacidad_calorifica)
-            print(f"Segundo {segundo_actual}: {temperatura_actual} °C + suma rara {densidad_agua/capacidad_calorifica} -   restarara  {calor_perdido/capacidad_calorifica} W")
+            # print(f"Segundo {segundo_actual}: {temperatura_actual} °C + suma rara {densidad_agua/capacidad_calorifica} -   restarara  {calor_perdido/capacidad_calorifica} W")
             grafica_eje_y_con_perdida.append(temperatura_actual)
             grafica_eje_x.append(segundo_actual)
             temperatura_actual += variacion_temperatura
-            
-            
             
             grafica_eje_y_sin_perdida.append(temperatura_interior)
             temperatura_interior += self.aumento_por_segundo
