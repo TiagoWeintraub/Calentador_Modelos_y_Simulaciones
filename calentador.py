@@ -2,22 +2,28 @@ from matplotlib import pyplot as plt
 import math      
 
 class Calentador:
-    def __init__(self, temperatura_inicial_agua , temperatura_final, temperatura_exterior):
+    def __init__(self, temperatura_inicial_agua , temperatura_final, temperatura_exterior, resistencia = None):
         self.temperatura_interior = temperatura_inicial_agua
+        self.temperatura_final = temperatura_final
+        self.temperatura_exterior = temperatura_exterior
+        self.resistencia = resistencia
         self.tiempo = 210
         self.tension = 220
         self.capacidad_recipiente = 1800
         self.conductividad_fibra_de_vidrio = 0.04
-        self.temperatura_final = temperatura_final
-        self.temperatura_exterior = temperatura_exterior
 
     def especificaciones(self):
-        capacidad_calorifica = 4186
-        Q = self.capacidad_recipiente * capacidad_calorifica * (self.temperatura_final - self.temperatura_interior)# Energía calorífica
-        P = Q / self.tiempo #Potencia
-        I = P / self.tension #Corriente 
-        R = self.tension / I #Resistencia
-        self.aumento_por_segundo = P / (self.capacidad_recipiente * capacidad_calorifica) #Aumento de temperatura por segundo
+        capacidad_calorifica = 4.186
+        if self.resistencia:
+            p = self.tension**2/self.resistencia  
+            print(f'LA resistencia es R: {self.resistencia}, la potencia {p}, la I {p/self.tension}')
+        else:
+            q = self.capacidad_recipiente * capacidad_calorifica * (self.temperatura_final - self.temperatura_interior)# Energía calorífica
+            p = q / self.tiempo #Potencia
+            i = p / self.tension #Corriente 
+            r = self.tension / i #Resistencia
+            print(f'LA resistencia es R: {r}, Q: {q}, la potencia {p}, la I {i}')
+        self.aumento_por_segundo = p / (self.capacidad_recipiente * capacidad_calorifica) #Aumento de temperatura por segundo
 
     def calentar(self, grafica_general=None):
         self.especificaciones()
@@ -26,7 +32,6 @@ class Calentador:
         grafica_eje_y_con_perdida = []
         temperatura_interior = self.temperatura_interior
         temperatura_actual = self.temperatura_interior
-        temperatura_exterior = 15
         capacidad_calorifica = 4186 # J/kg°C
         altura = 30 #cm 
         radio = 7 #cm
@@ -39,7 +44,7 @@ class Calentador:
         for segundo in range(self.tiempo):
             segundo_actual = segundo
 
-            calor_perdido = k*superficie*(temperatura_actual - temperatura_exterior)/espesor #  W/K Calor perdido
+            calor_perdido = k*superficie*(temperatura_actual - self.temperatura_exterior)/espesor #  W/K Calor perdido
             variacion_temperatura = self.aumento_por_segundo - (calor_perdido/capacidad_calorifica)
             # print(f"Segundo {segundo_actual}: {temperatura_actual} °C + suma rara {densidad_agua/capacidad_calorifica} -   restarara  {calor_perdido/capacidad_calorifica} W")
             grafica_eje_y_con_perdida.append(temperatura_actual)
@@ -48,7 +53,7 @@ class Calentador:
             
             grafica_eje_y_sin_perdida.append(temperatura_interior)
             temperatura_interior += self.aumento_por_segundo
-        print(grafica_eje_y_con_perdida)
+        #print(grafica_eje_y_con_perdida)
 
         if grafica_general:
             grafica_general.almacenar_datos(grafica_eje_x, grafica_eje_y_sin_perdida, grafica_eje_y_con_perdida,
@@ -100,21 +105,17 @@ if __name__ == "__main__":
 #Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_exterior
     grafica_general = Graficador()
     
-    calentador1 = Calentador( 15, 100, 15)
-    calentador1.especificaciones()
-    calentador1.calentar(grafica_general)
+    #calentador1 = Calentador(15, 100, 15)
+    #calentador1.calentar(grafica_general)
     
-    calentador2 = Calentador(20, 100, 25)
-    calentador2.especificaciones()
-    calentador2.calentar(grafica_general)
+    # calentador2 = Calentador(20, 100, 25, 40)
+    # calentador2.calentar(grafica_general)
     
-    calentador3 = Calentador(10, 100, 25)
-    calentador3.especificaciones()
+    calentador3 = Calentador(10, 100, 25,15)
     calentador3.calentar(grafica_general)
     
-    calentador4 = Calentador(5, 100, 0)
-    calentador4.especificaciones()
-    calentador4.calentar(grafica_general)
+    # calentador4 = Calentador(5, 100, 0, 35)
+    # calentador4.calentar(grafica_general)
 
     def main():
         decision = input('1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
