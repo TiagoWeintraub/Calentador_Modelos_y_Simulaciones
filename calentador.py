@@ -10,7 +10,10 @@ class Calentador:
         self.temperatura_exterior = temperatura_exterior
         self.resistencia = resistencia
         self.tiempo = 210
-        self.tension = tension
+        if tension:
+            self.tension = tension
+        else:
+            self.tension = 220
         self.capacidad_recipiente = 1800
         self.conductividad_fibra_de_vidrio = 0.04
         self.capacidad_calorifica = 4186 # J/kg°C
@@ -99,20 +102,25 @@ class Graficador:
         plt.xticks(range(0, max_tiempo + 1, 15))
         plt.show()
 
-
 def main():
     #Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_ambiente, resistencia y tension
     grafica_general = Graficador()
     
     resistencias_dist_unif = np.random.uniform(13,25,5)     # 5.A) CON 5 VALORES DISTINTOS DE RESISTENCIAS - DIST UNIFORME
     temp_inicial_agua_dist_norm = np.random.normal(10, 5, 5)    # 5.B) CON 5 VALORES DISTINTOS DE TEMP. INICIAL DEL AGUA - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
-    temp_ambiente = np.random.uniform(0, 30, 5)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
+    temp_ambiente = np.random.uniform(-20, 50, 5)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
     tension_dist_norm = np.random.normal(220, 40, 5)     # 5.D) CON 5 VALORES DISTINTOS DE TENSION DE ALIMENTACION - DIST NORMAL CON MEDIA 12 Y DESV. ESTANDAR 4 - LUEGO DIST NORMAL CON MEDIA 220 Y DESV. ESTANDAR 40.
     
     for i in range(5):
         calentador = Calentador(temp_inicial_agua_dist_norm[i], 100, temp_ambiente[i], resistencias_dist_unif[i], tension_dist_norm[i])
         calentador.calentar(grafica_general)
         print("Resistencia: ", resistencias_dist_unif[i], "Temperatura inicial: ", temp_inicial_agua_dist_norm[i], "Temperatura ambiente: ", temp_ambiente[i], "Tension: ", tension_dist_norm[i])
+
+    #for i in range(5):
+    #    calentador = Calentador(15, 100, 15, 15, tension_dist_norm[i])
+    #    calentador.calentar(grafica_general)
+    #    print("Resistencia: ", resistencias_dist_unif[i], "Temperatura inicial: ", temp_inicial_agua_dist_norm[i], "Temperatura ambiente: ", temp_ambiente[i], "Tension: ", tension_dist_norm[i])
+
 
     decision = input('\nPresione enter para salir\n\n1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
     if decision == '1':
