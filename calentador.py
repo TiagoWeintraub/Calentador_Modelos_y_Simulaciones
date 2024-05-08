@@ -15,7 +15,6 @@ class Calentador:
         else:
             self.tension = 220
         self.capacidad_recipiente = 1800
-        self.conductividad_fibra_de_vidrio = 0.04
         self.capacidad_calorifica = 4186 # J/kg°C
         self.altura = 30 #cm 
         self.radio = 7 #cm

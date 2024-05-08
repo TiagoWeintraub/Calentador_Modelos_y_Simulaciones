@@ -16,7 +16,6 @@ class Calentador:
         else:
             self.tension = 220
         self.capacidad_recipiente = 1800
-        self.conductividad_fibra_de_vidrio = 0.04
         self.capacidad_calorifica = 4186 # J/kg°C
         self.altura = 30 #cm 
         self.radio = 7 #cm
@@ -47,12 +46,11 @@ class Calentador:
         segundo = 1
         while temperatura_actual < self.temperatura_final:
             rand = np.random.randint(1, 300)
-            print(f"rand: {rand} - segundo {segundo}")
             if rand == 1: # Ocurrencia del fenómeno estocástico
-                print("estado evento: Apagao")
+                print("estado evento: OCURRE EVENTO")
                 if estado_evento == 0:
                     descenso_grados = np.random.randint(-50, 0) # Se elige una variación aleatoria en el rango [-50, 0] grados
-                    duracion_descenso = np.random.randint(0, 60) # Se elige una duración aleatoria en el rango [50, 120] segundos
+                    duracion_descenso = np.random.randint(10, 30) # Se elige una duración aleatoria en el rango [10, 30] segundos
                     variacion_temperatura_ambiente = (descenso_grados / duracion_descenso) # Para calcular cuantos grados baja por segundo
                     fin_evento = segundo + duracion_descenso
                     if fin_evento > self.tiempo:
@@ -77,8 +75,6 @@ class Calentador:
             grafica_eje_x.append(segundo)
             temperatura_actual += variacion_temperatura
             segundo += 1
-
-        #print(grafica_eje_y_con_perdida)
 
         if grafica_general:
             grafica_general.almacenar_datos(grafica_eje_x, grafica_eje_y_sin_perdida, grafica_eje_y_con_perdida,
@@ -119,27 +115,16 @@ class Graficador:
 def main():
     #Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_ambiente, resistencia y tension
     grafica_general = Graficador()
+
+    temp_inicial_agua_dist_norm = np.random.normal(10, 5)    # 5.B) CON 5 VALORES DISTINTOS DE TEMP. INICIAL DEL AGUA - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
+    temp_ambiente = np.random.uniform(5, 30)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
+    tension_dist_norm = np.random.normal(220, 40)     # 5.D) CON 5 VALORES DISTINTOS DE TENSION DE ALIMENTACION - DIST NORMAL CON MEDIA 12 Y DESV. ESTANDAR 4 - LUEGO DIST NORMAL CON MEDIA 220 Y DESV. ESTANDAR 40.
     
-    resistencias_dist_unif = np.random.uniform(13,25,5)     # 5.A) CON 5 VALORES DISTINTOS DE RESISTENCIAS - DIST UNIFORME
-    temp_inicial_agua_dist_norm = np.random.normal(10, 5, 5)    # 5.B) CON 5 VALORES DISTINTOS DE TEMP. INICIAL DEL AGUA - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
-    temp_ambiente = np.random.uniform(-20, 50, 5)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
-    tension_dist_norm = np.random.normal(220, 40, 5)     # 5.D) CON 5 VALORES DISTINTOS DE TENSION DE ALIMENTACION - DIST NORMAL CON MEDIA 12 Y DESV. ESTANDAR 4 - LUEGO DIST NORMAL CON MEDIA 220 Y DESV. ESTANDAR 40.
-    
-    for i in range(1):
-        calentador = Calentador(15, 100, 15, 15, 220)
-        calentador.calentar(grafica_general)
-        #print("Resistencia: ", resistencias_dist_unif[i], "Temperatura inicial: ", temp_inicial_agua_dist_norm[i], "Temperatura ambiente: ", temp_ambiente[i], "Tension: ", tension_dist_norm[i])
+    calentador = Calentador(temp_inicial_agua_dist_norm, 100, temp_ambiente, 15, tension_dist_norm)
+    calentador.calentar(grafica_general)
 
-    #for i in range(5):
-    #    calentador = Calentador(15, 100, 15, 15, tension_dist_norm[i])
-    #    calentador.calentar(grafica_general)
-    #    print("Resistencia: ", resistencias_dist_unif[i], "Temperatura inicial: ", temp_inicial_agua_dist_norm[i], "Temperatura ambiente: ", temp_ambiente[i], "Tension: ", tension_dist_norm[i])
-
-
-    decision = input('\nPresione enter para salir\n\n1 para grafico SIN perdida de calor \n2 para grafico CON perdida de calor: ')
+    decision = input('\nPresione enter para salir\n\n1 para grafico del fenómeno estocástico: ')
     if decision == '1':
-        grafica_general.grafico_sin_perdida()
-    elif decision == '2':
         grafica_general.grafico_con_perdida()
     else: 
         pass
