@@ -40,18 +40,19 @@ class Calentador:
         grafica_eje_y_sin_perdida = []
         grafica_eje_y_con_perdida = []
         temperatura_actual = self.temperatura_interior
+        
+        temperatura_ambiente_sin_evento = self.temperatura_ambiente
         estado_evento = 0
         fin_evento = 0
         superficie = (2 * math.pi * (self.radio**2) + 2 * math.pi * self.radio* self.altura)/10000 # m² - Se divide para pasarlo a m²
         segundo = 1
         while temperatura_actual < self.temperatura_final:
-            rand = np.random.randint(1, 300)
+            rand = np.random.randint(1, 30)
             if rand == 1: # Ocurrencia del fenómeno estocástico
                 print("estado evento: OCURRE EVENTO")
                 if estado_evento == 0:
-                    descenso_grados = np.random.randint(-50, 0) # Se elige una variación aleatoria en el rango [-50, 0] grados
-                    duracion_descenso = np.random.randint(10, 30) # Se elige una duración aleatoria en el rango [10, 30] segundos
-                    variacion_temperatura_ambiente = (descenso_grados / duracion_descenso) # Para calcular cuantos grados baja por segundo
+                    temperatura_ambiente_evento = temperatura_ambiente_sin_evento + np.random.randint(-50, 0) # Se elige una variación aleatoria en el rango [-50, 0] grados
+                    duracion_descenso = np.random.randint(60, 120) # Se elige una duración aleatoria en el rango [10, 30] segundos
                     fin_evento = segundo + duracion_descenso
                     if fin_evento > self.tiempo:
                         fin_evento = self.tiempo
@@ -63,14 +64,13 @@ class Calentador:
                 if segundo == fin_evento:
                     estado_evento = 0
                 else:
-                    self.temperatura_ambiente += variacion_temperatura_ambiente
-                    print(f"Evento estocástico: {self.temperatura_ambiente} °C en el segundo {segundo} °C")
-                    print(f"La temperatura ambiente ahora es de {self.temperatura_ambiente} °C")
-                    
-            calor_perdido = self.k*superficie*(temperatura_actual - self.temperatura_ambiente)/self.espesor #  W/K Calor perdido
+                    calor_perdido = self.k*superficie*(temperatura_actual - temperatura_ambiente_evento)/self.espesor #  W/K Calor perdido
+                    print(f"Evento estocástico: {self.temperatura_ambiente} °C en el segundo {segundo}")
+            elif estado_evento == 0:
+                calor_perdido = self.k*superficie*(temperatura_actual - self.temperatura_ambiente)/self.espesor
+
             variacion_temperatura = self.aumento_por_segundo - (calor_perdido/self.capacidad_calorifica)
             print("La variacion de temperatura es de ", variacion_temperatura)
-            # print(f"Segundo {segundo_actual}: {temperatura_actual} °C + suma rara {densidad_agua/capacidad_calorifica} -   restarara  {calor_perdido/capacidad_calorifica} W")
             grafica_eje_y_con_perdida.append(temperatura_actual)
             grafica_eje_x.append(segundo)
             temperatura_actual += variacion_temperatura
@@ -102,23 +102,24 @@ class Graficador:
         plt.title('Temperatura del Líquido')
         max_temperatura_final = max(self.temperatura_final)
         plt.yticks(range(0, max_temperatura_final + 1, 5)) 
-        tiempo = len(self.graficas_eje_x[0])
-        if tiempo > 300:
-            intervalo = 50
-        else:
-            intervalo = 20
         
+        tiempo = len(self.graficas_eje_x[0])
+        if tiempo < 200 :
+            intervalo = 15
+        elif 199 < tiempo < 300:
+            intervalo = 30
+        elif tiempo > 299:
+            intervalo = 50
         plt.xticks(range(0, tiempo + 1, intervalo))
-        plt.xticks(range(0, tiempo + 1, 20))
         plt.show()
 
 def main():
     #Los parametros que puedo variar son temperatura_interior, temperatura_que_quiere_llegar, temperatura_ambiente, resistencia y tension
     grafica_general = Graficador()
 
-    temp_inicial_agua_dist_norm = np.random.normal(10, 5)    # 5.B) CON 5 VALORES DISTINTOS DE TEMP. INICIAL DEL AGUA - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
-    temp_ambiente = np.random.uniform(5, 30)    # 5.C) CON 5 VALORES DISTINTOS DE TEMP. DEL AMBIENTE  - DIST NORMAL CON MEDIA 10 Y DESV. ESTANDAR 5
-    tension_dist_norm = np.random.normal(220, 40)     # 5.D) CON 5 VALORES DISTINTOS DE TENSION DE ALIMENTACION - DIST NORMAL CON MEDIA 12 Y DESV. ESTANDAR 4 - LUEGO DIST NORMAL CON MEDIA 220 Y DESV. ESTANDAR 40.
+    temp_inicial_agua_dist_norm = np.random.normal(10, 5)    
+    temp_ambiente = np.random.uniform(5, 30)   
+    tension_dist_norm = np.random.normal(220, 40)
     
     calentador = Calentador(temp_inicial_agua_dist_norm, 100, temp_ambiente, 15, tension_dist_norm)
     calentador.calentar(grafica_general)
