@@ -4,10 +4,10 @@ import math
 import numpy as np
 
 class Calentador:
-    def __init__(self, temperatura_inicial_agua, temperatura_final, temperatura_exterior, resistencia=None, tension=None):
+    def __init__(self, temperatura_inicial_agua, temperatura_final, temperatura_ambiente, resistencia=None, tension=None):
         self.temperatura_inicial = temperatura_inicial_agua
         self.temperatura_final = temperatura_final
-        self.temperatura_exterior = temperatura_exterior
+        self.temperatura_ambiente = temperatura_ambiente
         self.resistencia = resistencia
         self.tension = tension
         self.tiempo = 210
@@ -52,7 +52,7 @@ class Calentador:
                     temperatura_actual += variacion_temperatura
             else:
                 # Calor perdido debido a la diferencia de temperatura
-                calor_perdido = self.k * superficie * (temperatura_actual - self.temperatura_exterior) / self.espesor  # W/K Calor perdido
+                calor_perdido = self.k * superficie * (temperatura_actual - self.temperatura_ambiente) / self.espesor  # W/K Calor perdido
                 variacion_temperatura = self.aumento_por_segundo - (calor_perdido / self.capacidad_calorifica)
                 grafica_eje_y_con_perdida.append(temperatura_actual)
                 grafica_eje_x.append(segundo_actual)
